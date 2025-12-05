@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  exemple:
+    image: virtusilva/exemple:latest   # ← já troquei pro seu usuário correto
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+      labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.exemple-http.rule=Host(`exemple.ofertinhas.site`)"
+        - "traefik.http.routers.exemple-http.entrypoints=web"
+        - "traefik.http.routers.exemple-http.middlewares=redirect-https"
+        - "traefik.http.middlewares.redirect-https.redirectscheme.scheme=https"
+
+        - "traefik.http.routers.exemple-https.rule=Host(`exemple.ofertinhas.site`)"
+        - "traefik.http.routers.exemple-https.entrypoints=websecure"
+        - "traefik.http.routers.exemple-https.tls=true"
+        - "traefik.http.routers.exemple-https.tls.certresolver=letsencryptresolver"
+
+        - "traefik.http.services.exemple.loadbalancer.server.port=80"
+    networks:
+      - ofertinhas   # ← rede que já existe
+
+networks:
+  ofertinhas:
+    external: true
